@@ -26,6 +26,8 @@ int numLinea=1;			// Numero de Linea
 
 // Rutinas del analizador lexico
 
+
+/*Esta Runtina es para comprobar si existe o no el "Output.txt"*/
 int comprobarOutput(){
 	FILE *output;
 	output = fopen("output.txt","r");
@@ -48,20 +50,20 @@ void lexer(){
 	int acepto=0;
 	int estado=0;
 	char msg[41];
-	static int rep = 0;
+	static int rep = 0; //Controla si se esta usando el Output actual
 	entrada e;
 
 	while((c=fgetc(archivo))!=EOF)
 	{
-		if (comprobarOutput()==0 && rep==0){
+		if (comprobarOutput()==0 && rep==0){ //Si existe el archivo y no se a usado todavia el Output
 			remove("output.txt");
 			freopen("output.txt", "a",stdout);
 			rep=1;
 
-		}else if(comprobarOutput()==0 && rep==1){
+		}else if(comprobarOutput()==0 && rep==1){//Si existe el archivo y se esta usando el Output
 			freopen("output.txt", "a",stdout);
 
-		}else if(comprobarOutput()==1){
+		}else if(comprobarOutput()==1){//Si no existe
 			freopen("output.txt", "a",stdout);
 		}
 
