@@ -1,50 +1,76 @@
+/*********** Inclusión de cabecera **************/
 #include "anlex.h"
 
-/**---------- Variables globales que se utilizaran ----------**/
 
-int consumir;
+/************* Variables globales **************/
 
-char cad[5*TAMLEX];
-token t;
+int consumir;			/* 1 indica al analizador lexico que debe devolver
+						el sgte componente lexico, 0 debe devolver el actual */
 
-FILE *archivo; // archivo codigo Fuente JSON
-char buff[2*TAMBUFF];	// Buffer utilizado para la lectura del archivo fuente
-char id[TAMLEX];		// variable utilizada en el analizador lexico
-int delantero=-1;		// variable utilizada en el analizador lexico
-int fin=0;				// variable utilizada en el analizador lexico
-int numLinea=1;			// Numero de Linea en el archivo
+char cad[5*TAMLEX];		// string utilizado para cargar mensajes de error
+token t;				// token global para recibir componentes del Analizador Lexico
 
-/**---------- Funciones definidas ----------**/
+// variables para el analizador lexico
+
+FILE *archivo;			// Fuente JSON
+char buff[2*TAMBUFF];	// Buffer para lectura de archivo fuente
+char id[TAMLEX];		// Utilizado por el analizador lexico
+int delantero=-1;		// Utilizado por el analizador lexico
+int fin=0;				// Utilizado por el analizador lexico
+int numLinea=1;			// Numero de Linea
+
+
+
+/**************** Funciones **********************/
+
+
+// Rutinas del analizador lexico
+
+int comprobarOutput(){
+	FILE *output;
+	output = fopen("output.txt","r");
+	if(output != NULL){
+		return 0;
+	}else{
+		return 1;
+	}
+}
 
 void error(const char* mensaje)
 {
-	printf("Error Lexico %s  ",mensaje);
+	printf("Lin %d: Error Lexico. %s.\n",numLinea,mensaje);	
 }
 
-void lexer()
-{
+
+void lexer(){
 	int i=0;
 	char c=0;
 	int acepto=0;
 	int estado=0;
 	char msg[41];
+	static int rep = 0;
 	entrada e;
 
 	while((c=fgetc(archivo))!=EOF)
 	{
-		remove("output.txt");
-		freopen("output.txt", "a",stdout); // se crea el archivo de salida correspondiente al fuente ingresado
+		if (comprobarOutput()==0 && rep==0){
+			remove("output.txt");
+			freopen("output.txt", "a",stdout);
+			rep=1;
 
-		if (c==' '){
-			printf(" ");	//imprimir espacios en blanco
+		}else if(comprobarOutput()==0 && rep==1){
+			freopen("output.txt", "a",stdout);
+
+		}else if(comprobarOutput()==1){
+			freopen("output.txt", "a",stdout);
 		}
-        else if (c=='\t'){
-            printf("\t");   // imprimir tabulaciones
-		}
+
+		if (c==' ' || c=='\t')
+			continue;
+
 		else if(c=='\n')
 		{
 			//se incrementa el numero de linea
-            printf("\n");
 			numLinea++;
 			continue;
 		}
@@ -342,63 +368,33 @@ void lexer()
 	}
 }
 
+
 int main(int argc,char* args[])
 {
-	// se inicializa el lexer
+	// inicializar analizador lexico
+
 	iniciarTabla();
 	iniciarTablaSimbolos();
-
-	char *comp_lex [12]; // vector definido para almacenar los componentes lexicos
-
-    comp_lex [0]= "L_CORCHETE";
-    comp_lex [1]= "R_CORCHETE" ;
-    comp_lex [2]= "L_LLAVE";
-    comp_lex [3]= "R_LLAVE";
-    comp_lex [4]= "COMA";
-    comp_lex [5]= "DOS_PUNTOS";
-    comp_lex [6]= "LITERAL_CADENA";
-    comp_lex [7]= "LITERAL_NUM";
-    comp_lex [8]= "PR_TRUE";
-    comp_lex [9]= "PR_FALSE";
-    comp_lex [10]= "PR_NULL";
-    comp_lex [-1]= "EOF";
-
+	
 	if(argc > 1)
 	{
-		int i,j=0;
-		int tam = strlen(args[1]);
-		char ruta[tam];
-		char rutaModificada[tam];
-		
-		for (i=0;i<tam;i++) {
-			ruta[i]='\0';
-		}
-		for (i=0;i<tam;i++) {
-			rutaModificada[i]='\0';
-		}
-		
-		strncpy(ruta,args[1],tam);
-		
-		for (i=1;i<tam-1;i++) {
-			rutaModificada[j] = ruta[i];
-			j++;
-		}
-	
-		if (!(archivo=fopen(rutaModificada,"rt")))
+		if (!(archivo=fopen(args[1],"rt")))
 		{
-			printf("El archivo no fue encontrado.\n");
+			printf("Archivo no encontrado.\n");
 			exit(1);
 		}
-		
 		while (t.compLex!=EOF){
 			lexer();
-			printf("%s  ",comp_lex[t.compLex]);
+			printf("Lin %d: %s -> %d \n",numLinea,t.pe->lexema,t.compLex);
 		}
+		fclose(archivo);
 	}else{
-		printf("Se debe pasar como parametro el path(ruta) al archivo fuente seleccionado.\n");
+		printf("Debe pasar como parametro el path al archivo fuente.\n");
 		exit(1);
 	}
-    fclose(archivo);
-    fclose(stdout);
+
 	return 0;
 }
+
+
+
