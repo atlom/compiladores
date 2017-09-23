@@ -65,6 +65,7 @@ void lexer(){
 
 		}else if(comprobarOutput()==1){//Si no existe
 			freopen("output.txt", "a",stdout);
+			rep=1;
 		}
 
 		if (c==' ' || c=='\t')
