@@ -378,6 +378,20 @@ int main(int argc,char* args[])
 
 	iniciarTabla();
 	iniciarTablaSimbolos();
+
+	char *comp_lex [12];
+
+	comp_lex [0]= "L_CORCHETE";
+	comp_lex [1]= "R_CORCHETE";
+	comp_lex [2]= "L_LLAVE";
+	comp_lex [3]= "R_LLAVE";
+	comp_lex [4]= "COMA";
+	comp_lex [5]= "DOS_PUNTOS";
+	comp_lex [6]= "LITERAL_CADENA";
+	comp_lex [7]= "LITERAL_NUM";
+	comp_lex [8]= "PR_TRUE";
+	comp_lex [9]= "PR_FALSE";
+	comp_lex [10]= "PR_NULL";
 	
 	if(argc > 1)
 	{
@@ -388,7 +402,11 @@ int main(int argc,char* args[])
 		}
 		while (t.compLex!=EOF){
 			lexer();
-			printf("Lin %d: %s -> %d \n",numLinea,t.pe->lexema,t.compLex);
+			if (t.compLex!=-1){
+				printf("Lin %d: %s -> %d \n",numLinea,comp_lex[t.compLex],t.compLex);
+			}else{
+				printf("Lin %d: %s -> %d \n",numLinea,t.pe->lexema,t.compLex);
+			}
 		}
 		fclose(archivo);
 	}else{

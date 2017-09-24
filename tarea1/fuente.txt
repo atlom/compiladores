@@ -1,0 +1,5 @@
+"json"{
+	"id":1,
+	"nombre":"nombre",
+	"lista":["l1":1,"l2":2]
+}
